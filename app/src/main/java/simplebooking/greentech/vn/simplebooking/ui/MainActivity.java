@@ -14,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -45,6 +46,15 @@ public class MainActivity extends AppCompatActivity {
                 //if user pressed on button register
                 //here we will register the user to server
                 validatePhone();
+            }
+        });
+
+        findViewById(R.id.buttonLocation).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //if user pressed on button register
+                //here we will register the user to server
+                sendLocations();
             }
         });
     }
@@ -156,6 +166,70 @@ public class MainActivity extends AppCompatActivity {
 
         //executing the async task
         ValidatePhone ru = new ValidatePhone();
+        ru.execute();
+    }
+
+    private void sendLocations() {
+
+        class SendLocation extends AsyncTask<Void, Void, String> {
+
+            private ProgressBar progressBar;
+
+            @Override
+            protected String doInBackground(Void... voids) {
+                //creating request handler object
+                RequestHandler requestHandler = new RequestHandler();
+
+                //creating request parameters
+                JSONObject params = new JSONObject();
+                try {
+                    params.put("vehicle_id", "6c23b811-5b48-4378-88cd-1f39084499df");
+                    params.put("booking_cd", "LEY16GC8");
+                    JSONArray arr = new JSONArray();
+                    JSONObject obj = new JSONObject();
+                    obj.put("tracking_time", "2018-05-12 09:50:00");
+                    obj.put("lat", "20.9103465");
+                    obj.put("lng", "105.5884756");
+                    arr.put(obj);
+                    params.put("location_list", arr);
+                    return requestHandler.sendPostRequest2(URLs.URL_SUBMIT_LOCATIONS, params.toString());
+                } catch (JSONException je){
+                    je.printStackTrace();
+                }
+                catch (IOException ioe){
+                    ioe.printStackTrace();
+                }
+                return  "";
+            }
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                //displaying the progress bar while user registers on the server
+                progressBar = (ProgressBar) findViewById(R.id.progressBar);
+                progressBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+                //hiding the progressbar after completion
+                progressBar.setVisibility(View.GONE);
+
+                try {
+                    //converting response to json object
+                    JSONObject obj = new JSONObject(s);
+                    String result = obj.getString("code");
+                    resultView.setText(s);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        //executing the async task
+        SendLocation ru = new SendLocation();
         ru.execute();
     }
 }

@@ -4,11 +4,11 @@ import android.net.Uri;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -17,9 +17,32 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 
 public class RequestHandler {
 
+
+    public static final MediaType JSON
+            = MediaType.parse("application/json; charset=utf-8");
+
+    OkHttpClient client = new OkHttpClient();
+
+    public String sendPostRequest2(String url, String params) throws IOException {
+        RequestBody body = RequestBody.create(JSON, params);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .addHeader("api-key", SharedManager.API_KEY)
+                .addHeader("Authorization", "bearer " + SharedManager.API_TOKEN)
+                .build();
+        Response response = client.newCall(request).execute();
+        return response.body().string();
+    }
 
     //this method will send a post request to the specified url
     //in this app we are using only post request
@@ -37,6 +60,7 @@ public class RequestHandler {
             conn.setDoInput(true);
             conn.setDoOutput(true);
             conn.setRequestProperty("api-key", SharedManager.API_KEY);
+            conn.setRequestProperty("Authorization", "bearer " + SharedManager.API_TOKEN);
 
             OutputStream os = conn.getOutputStream();
 
@@ -94,6 +118,7 @@ public class RequestHandler {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod(Constants.REQUEST_METHOD_GET);
             conn.setRequestProperty("api-key", SharedManager.API_KEY);
+            conn.setRequestProperty("Authorization", "bearer " + SharedManager.API_TOKEN);
             int responseCode = conn.getResponseCode();
             if (responseCode == HttpsURLConnection.HTTP_OK) {
 
