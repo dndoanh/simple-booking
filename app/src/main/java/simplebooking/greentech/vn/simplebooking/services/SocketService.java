@@ -93,6 +93,7 @@ public class SocketService extends Service {
                 opts.reconnectionDelay = 0;//reconnection delay time in milliseconds
                 opts.reconnectionAttempts = 5;//no of attempts to reconnect socket
                 //opts.forceNew = true;
+                opts.query = "user_id=xxxx-xxxxxx-xxxxxx-xxxxxxx";
                 socket = IO.socket(URLs.URL_SOCKET_SEVER, opts);//server ip address
                 //Methods for listening to events.
                 socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
